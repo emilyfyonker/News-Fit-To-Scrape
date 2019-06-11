@@ -80,22 +80,22 @@ app.get("/saved", function(req,res){
 app.get("/scrape", function(req,res){
 	request("https://www.nytimes.com/", function(error,response, html){
 		var $ = cheerio.load(html);
-		$("article").each(function(i,element){
+		$(".assetWrapper").each(function(i,element){
 			var result = {};
-			result.title = $(this).children("h2").text();
-			result.summary = $(this).children(".summary").text();
-			result.link = $(this).children("h2").children("a").attr("href");
+			result.title = $(this).find("h2").text();
+			result.summary = $(this).find("div > div > a").text();
+			result.link = $(this).find("div > div > a").children("a").attr("href");
 
 			var entry = new Article(result);
-
-			entry.save(function(err, doc){
-				if(err){
-					console.log(err);
-				}
-				else{
-					console.log(doc);
-				}
-			});
+console.log(result)
+			// entry.save(function(err, doc){
+			// 	if(err){
+			// 		console.log(err);
+			// 	}
+			// 	else{
+			// 		console.log(doc);
+			// 	}
+			// });
 		});
 		res.send("Scrape Complete");
 	});
