@@ -84,7 +84,7 @@ app.get("/scrape", function(req,res){
 			var result = {};
 			result.title = $(this).find("h2").text();
 			result.summary = $(this).find("div > div > a").text();
-			result.link = $(this).find("div > div > a").children("a").attr("href");
+			result.link = "https://www.nytimes.com" + $(this).find("div > div > a").attr("href");
 
 			var entry = new Article(result);
 console.log(result)
