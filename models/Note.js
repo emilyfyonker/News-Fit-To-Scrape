@@ -7,6 +7,10 @@ var Schema = mongoose.Schema;
 
 // Create the Note schema
 var NoteSchema = new Schema({
+  _headlineId: {
+    type: Schema.Types.ObjectId,
+    ref: "Article"
+  },
   // a string
   title: String,
   // `body` is of type String
@@ -20,3 +24,4 @@ var Note = mongoose.model("Note", NoteSchema);
 
 // Export the Note model
 module.exports = Note;
+

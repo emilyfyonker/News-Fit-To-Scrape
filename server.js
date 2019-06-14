@@ -49,16 +49,16 @@ app.engine("handlebars", exphbs({
 }));
 app.set("view engine", "handlebars");
 
-db.on("error", function(error){
+db.on("error", function (error) {
 	console.log("Mongoose Error: ", error);
 });
 
-db.once("open", function(){
+db.once("open", function () {
 	console.log("Mongoose connection successful.");
 });
 
-app.get("/", function(req,res){
-	Article.find({"saved": false}).limit(20).exec(function(error,data){
+app.get("/", function (req, res) {
+	Article.find({ }).limit(20).exec(function (error, data) {
 		var hbsObject = {
 			article: data
 		};
@@ -67,8 +67,8 @@ app.get("/", function(req,res){
 	});
 });
 
-app.get("/saved", function(req,res){
-	Article.find({"saved": true}).populate("notes").exec(function(error, articles){
+app.get("/saved", function (req, res) {
+	Article.find({ "saved": true }).populate("notes").exec(function (error, articles) {
 		var hbsObject = {
 			article: articles
 		};
@@ -77,117 +77,118 @@ app.get("/saved", function(req,res){
 });
 
 // A GET route for scraping the NYT website
-app.get("/scrape", function(req,res){
-	request("https://www.nytimes.com/", function(error,response, html){
+app.get("/scrape", function (req, res) {
+	request("https://www.nytimes.com/", function (error, response, html) {
 		var $ = cheerio.load(html);
-		$(".assetWrapper").each(function(i,element){
+		$(".assetWrapper").each(function (i, element) {
 			var result = {};
 			result.title = $(this).find("h2").text();
 			result.summary = $(this).find("div > div > a").text();
 			result.link = "https://www.nytimes.com" + $(this).find("div > div > a").attr("href");
 
 			var entry = new Article(result);
-console.log(result)
-			// entry.save(function(err, doc){
-			// 	if(err){
-			// 		console.log(err);
-			// 	}
-			// 	else{
-			// 		console.log(doc);
-			// 	}
-			// });
+			console.log(result)
+			entry.save(function (err, doc) {
+				if (err) {
+					console.log(err);
+				}
+				else {
+					console.log(doc);
+				}
+			});
 		});
 		res.send("Scrape Complete");
 	});
 });
 
-app.get("/articles", function(req,res){
-	Article.find({}).limit(20).exec(function(error, doc){
-		if(error){
+app.get("/articles", function (req, res) {
+	Article.find({}).limit(20).exec(function (error, doc) {
+		if (error) {
 			console.log(error);
 		}
-		else{
+		else {
 			res.json(doc);
 		}
 	});
 });
 
-app.get("/articles/:id", function(req,res){
-	Article.findOne({ "_id": req.params.id})
-	.populate("note")
-	.exec(function(error, doc){
-		if(error){
-			console.log(error);
-		}
-		else{
-			res.json(doc);
-		}
-	});
+app.get("/articles/:id", function (req, res) {
+	Article.findOne({ "_id": req.params.id })
+		.populate("note")
+		.exec(function (error, doc) {
+			if (error) {
+				console.log(error);
+			}
+			else {
+				res.json(doc);
+			}
+		});
 });
 
-app.post("/articles/save/:id", function(req,res){
-	Article.findOneAndUpdate({ "_id": req.params.id}, {"saved": true})
-	.exec(function(err, doc){
-		if(err){
-			console.log(err);
-		}
-		else{
-			res.send(doc);
-		}
-	});
+
+app.post("/articles/save/:id", function (req, res) {
+	Article.findOneAndUpdate({ "_id": req.params.id }, { "saved": true })
+		.exec(function (err, doc) {
+			if (err) {
+				console.log(err);
+			}
+			else {
+				res.send(doc);
+			}
+		});
 });
 
-app.post("/articles/delete/:id", function(req,res){
-	Article.findOneAndUpdate({ "_id": req.params.id}, {"saved": false, "notes":[]})
-	.exec(function(err, doc){
-		if(err){
-			console.log(err);
-		}
-		else{
-			res.send(doc);
-		}
-	});
+app.post("/articles/delete/:id", function (req, res) {
+	Article.findOneAndUpdate({ "_id": req.params.id }, { "saved": false, "notes": [] })
+		.exec(function (err, doc) {
+			if (err) {
+				console.log(err);
+			}
+			else {
+				res.send(doc);
+			}
+		});
 });
 
-app.post("notes/save/:id", function(req,res){
+app.post("notes/save/:id", function (req, res) {
 	var newNote = new Note({
 		body: req.body.text,
 		article: req.params.id
 	});
 	console.log(req.body)
-	newNote.save(function(error, note){
-		if(error){
+	newNote.save(function (error, note) {
+		if (error) {
 			console.log(error);
 		}
-		else{
-			Article.findOneAndUpdate({ "_id": req.params.id}, {$push: { "notes": note } })
-			.exec(function(err){
-				if(err){
-					console.log(err);
-					res.send(err);
-				}
-				else{
-					res.send(note);
-				}
-			});
+		else {
+			Article.findOneAndUpdate({ "_id": req.params.id }, { $push: { "notes": note } })
+				.exec(function (err) {
+					if (err) {
+						console.log(err);
+						res.send(err);
+					}
+					else {
+						res.send(note);
+					}
+				});
 		}
 	});
 });
 
-app.delete("/notes/delete/:note_id/:article", function(req,res){
-	Note.findOneAndRemove({"_id": req.params.note.id}, function(err){
-		if(err){
+app.delete("/notes/delete/:note_id/:article", function (req, res) {
+	Note.findOneAndRemove({ "_id": req.params.note.id }, function (err) {
+		if (err) {
 			console.log(err);
 			res.send(err);
 		}
-		else{
-			Article.findOneAndUpdate({"_id": req.params.article_id}, {$pull: {"notes": req.params.note_id}})
-				.exec(function(err){
-					if(err){
+		else {
+			Article.findOneAndUpdate({ "_id": req.params.article_id }, { $pull: { "notes": req.params.note_id } })
+				.exec(function (err) {
+					if (err) {
 						console.log(err);
-						res.send(err); 
+						res.send(err);
 					}
-					else{
+					else {
 						res.send("Note Deleted");
 					}
 				});
@@ -195,6 +196,10 @@ app.delete("/notes/delete/:note_id/:article", function(req,res){
 	});
 });
 
-app.listen(PORT, function(){
+
+app.listen(PORT, function () {
 	console.log("App running on PORT: " + PORT);
 });
+
+//to do: check routes for notes on server.js and app.js. 
+//make sure i'm passing all the required fields for that note
