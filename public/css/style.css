@@ -23,6 +23,11 @@ body{
 	margin: 8px 0px;
 }
 
+#empty {
+	margin: 8px 0px;
+	margin-left: 10px;
+}
+
 h1{
 	text-shadow: -1px -1px 0 rgb(44, 43, 43), 1px -1px 0 rgb(71, 71, 73), -1px 1px 0 rgb(245, 241, 241), 1px 1px 0 rgb(248, 244, 244);
 }

@@ -124,6 +124,20 @@ app.get("/articles/:id", function (req, res) {
 			}
 		});
 });
+app.get("/notes/:id", function (req, res) {
+	Article.findOne({ "_id": req.params.id })
+		.populate("note")
+		.exec(function (error, doc) {
+			console.log(doc)
+			if (error) {
+				console.log(error);
+			}
+			else {
+				res.json(doc);
+			}
+		
+		});
+});
 
 
 app.post("/articles/save/:id", function (req, res) {
@@ -150,7 +164,7 @@ app.post("/articles/delete/:id", function (req, res) {
 		});
 });
 
-app.post("notes/save/:id", function (req, res) {
+app.post("/notes", function (req, res) {
 	var newNote = new Note({
 		body: req.body.text,
 		article: req.params.id
@@ -201,5 +215,5 @@ app.listen(PORT, function () {
 	console.log("App running on PORT: " + PORT);
 });
 
-//to do: check routes for notes on server.js and app.js. 
-//make sure i'm passing all the required fields for that note
+//to do: create another get route for obtaining the notes associated with an article.
+//in the route, i need to provide article ID, send that, then do a findOne and provide article ID and populate notes.
