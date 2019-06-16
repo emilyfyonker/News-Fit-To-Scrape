@@ -46,7 +46,7 @@ $(".delete").on("click", function () {
 	console.log("delete test");
 	var thisId = $(this).attr("data-id");
 	$.ajax({
-		mehtod: "POST",
+		method: "POST",
 		url: "/articles/delete/" + thisId
 	}).done(function (data) {
 		window.location = "/saved"
@@ -81,7 +81,7 @@ $(".deleteNote").on("Click", function () {
 	var noteId = $(this).attr("data-note-id");
 	var artcileId = $(this).attr("data-article-id");
 	$.ajax({
-		mehtod: "DELETE",
+		method: "DELETE",
 		url: "/notes/delete/" + noteId + "/" + articleId
 	}).done(function (data) {
 		console.log(data)
@@ -92,8 +92,5 @@ $(".deleteNote").on("Click", function () {
 
 $("#empty").on("click", function () {
 	console.log("testing")
-	//$(".panel panel-default").text("");
-	// $(".panel-body").text("");
-	// $(".panel-heading").text("");
 	$(".col-md-12").text("");
    })
